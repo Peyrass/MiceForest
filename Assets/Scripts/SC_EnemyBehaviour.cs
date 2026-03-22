@@ -5,15 +5,19 @@ using UnityEngine.AI;
 
 public class EnemyBehaviour : MonoBehaviour
 {
+    [Header("Movement")]
     [SerializeField] private GameObject destino;
     [SerializeField] private NavMeshAgent agent;
     
-    [Header("Ataques")]
+    [Header("Attack")]
     [SerializeField] private Transform hittingPoint;
     [SerializeField] private float hitRadius;
     [SerializeField] private LayerMask whatIsDamagable;
     private Animator anim;
     
+    [Header("Audio")]
+    [SerializeField] private AudioClip miceShout;
+    private AudioSource audioSource;
     
    
     void Awake()
@@ -30,22 +34,19 @@ public class EnemyBehaviour : MonoBehaviour
         if(DestinationReached())
         {
             FaceToTarget();
-
-            Debug.Log("He llegado al destino");
-            anim.SetBool("hitting", true);
+            
+            audioSource.PlayOneShot(miceShout);
+            anim.SetBool("shouting", true);
         }
 
     }
 
     private void FaceToTarget()
     {
-        //1. Sacar dirección a mi objetivo (Destino - origen)
+        
         Vector3 targetDirection = (destino.transform.position - transform.position);
-        //2. Discriminar la "y" de la dirección, osea, ponerla a 0
         targetDirection.y = 0f;
-        //3. Se transforma la dirección a una rotación
         Quaternion rotationToTarget = Quaternion.LookRotation(targetDirection);
-        //4. Le das la rotación calculada en el paso 3 al transform.rotation del enemigo.
         transform.rotation = rotationToTarget;
     }
 
@@ -53,8 +54,7 @@ public class EnemyBehaviour : MonoBehaviour
         private void DoDamage()
         {
            Physics.OverlapSphere(hittingPoint.position, hitRadius, whatIsDamagable);
-            //for (COMPLETA)
-            Debug.Log("Golpeado!");
+           
         }
         
         private bool DestinationReached()
@@ -69,7 +69,7 @@ public class EnemyBehaviour : MonoBehaviour
             if (agent.remainingDistance > agent.stoppingDistance)
             {
                 Debug.Log("Se fué!");
-                anim.SetBool("hitting", false);
+                anim.SetBool("shouting", false);
                 agent.isStopped = false;
             }
             //1. Calcurlar la distancia a mi objetivo (saber si se ha ido de mi rango 
